@@ -1,124 +1,19 @@
 # AI Git Assist
 
-AI Git Assist is an intelligent command-line Java application that automates your entire Git commit workflow using OpenAI. It analyzes staged changes and provides AI-powered commit messages, automatic test generation, security validation, and README maintenance—all in one streamlined process.
+[![build](https://github.com/santanusetu/Ai-Git-Assist/actions/workflows/build.yml/badge.svg)](https://github.com/santanusetu/Ai-Git-Assist/actions/workflows/build.yml)
+![Java](https://img.shields.io/badge/Java-11%2B-ED8B00?logo=openjdk&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## Features
-
-- **AI-Powered Commit Messages**: Generates conventional commit messages (feat:, fix:, docs:, etc.) following industry best practices
-- **AI-Powered Test Generation**: Automatically generates test cases for functionality changes, supporting Java, Python, JavaScript/TypeScript, and more
-- **Security Validation**: Scans staged changes for sensitive information (API keys, passwords, tokens, secrets) and warns before committing
-- **README Auto-Update**: Intelligently generates or updates README.md files based on project changes
-- **Slack Integration**: Optional webhook notifications for commit tracking
-
-
-## Installation & Setup
-
-1. **Ensure Java 11+ is installed**
-
-2. **Set environment variables:**
-```bash
-export OPENAI_API_KEY=your-openai-api-key
-export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz  # Optional
-export OPENAI_MODEL=gpt-4o-mini  # Optional, defaults to gpt-4o-mini
-```
-
-3. **Build the project (if running from source):**
-```bash
-mvn clean install
-```
-
-## How to Run
-
-**Using pre-built JAR:**
-```bash
-java -jar ai-git-assist.jar
-```
-
-**Build from source:**
-```bash
-mvn clean install
-java -jar target/ai-git-assist.jar
-```
-
-**Run in a different repository:**
-```bash
-java -jar ai-git-assist.jar /path/to/repository
-```
-
-## How to Use
-
-1. **Stage your changes:**
-```bash
-git add .
-```
-
-2. **Run the application:**
-```bash
-java -jar ai-git-assist.jar
-```
-
-3. **Follow the interactive prompts** to review commit message, edit if needed, and confirm actions.
-
-### Workflow Diagram
+An interactive command-line assistant for `git commit`. It checks your staged changes for leaked secrets, writes a [Conventional Commits](https://www.conventionalcommits.org/) message with an LLM, can draft tests for the code you changed, and keeps your README up to date. Nothing is committed or pushed until you say yes.
 
 ```
-Start
-  │
-  ▼
-Validate Repository & Staged Changes
-  │
-  ▼
-Security Validation ──► ⚠️ Warning (optional) ──► Continue/Cancel
-  │
-  ▼
-Generate Test Cases? (y/n) ──► [Optional: Generate & Save Tests]
-  │
-  ▼
-Generate Commit Message (AI) ──► Edit Message? (y/n) ──► Commit with Message? (y/n)
-                                        │                        │
-                                        ▼                        ▼
-                                  [Optional: Edit]          [Cancel if No]
-  │
-  ▼
-Update README? (y/n) ──► [Optional: Update]
-  │
-  ▼
-Commit Changes ──► Push to Remote ──► ⚠️ Warning if fails
-  │
-  ▼
-Send Slack Notification (if configured)
-  │
-  ▼
-✅ Success
-```
-
-### Example Workflow
-
-```bash
-$ git add .
+$ git add src/main/java/com/example/UserService.java
 $ java -jar ai-git-assist.jar
 
 Validating changes for sensitive information...
 ✅ Security validation passed.
 
-Generate test cases for functionality changes? (y/n): y
-
-Generating test cases for functionality changes...
-
-═══════════════════════════════════════════════════════════
-                    GENERATED TEST CASES
-═══════════════════════════════════════════════════════════
-
-[Generated test code]
-
-═══════════════════════════════════════════════════════════
-
-Save test file? (y/n): y
-✅ Test saved: src/test/java/com/example/UserServiceTest.java
-
 Generating commit message...
-✅ Done.
-
 ═══════════════════════════════════════════════════════════
                     COMMIT MESSAGE
 ═══════════════════════════════════════════════════════════
@@ -127,105 +22,110 @@ feat: implement user authentication service
 
 - Add UserService with login and registration
 - Fix DatabaseConnection timeout handling
-- Update API documentation
-
-═══════════════════════════════════════════════════════════
 
 Edit message? (y/n): n
 Commit with this message? (y/n): y
-
-Update README? (y/n): y
-✅ README updated.
-
-Committing changes...
-✅ Changes committed.
-
-Pushing to remote...
+Push to origin/main? (y/n): y
 ✅ Changes pushed to remote.
-
-═══════════════════════════════════════════════════════════
-                        SUCCESS
-═══════════════════════════════════════════════════════════
-
-✅ All changes have been committed successfully.
 ```
 
-### Security Validation
+## Features
 
-Automatically scans staged changes for sensitive information using industry-standard patterns:
-- AWS Access Keys, GitHub Tokens, Private Keys
-- API Keys/Passwords/Secrets (common patterns)
-- Environment files (`.env`)
+- **Secret scanning before anything leaves your machine**: AWS keys, GitHub tokens (classic and fine-grained), Slack tokens, OpenAI/Anthropic keys, private keys, `password=`/`token=` assignments, and `.env` files.
+- **Commit messages that follow Conventional Commits**: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `perf:`, with a summary line of 72 characters or less.
+- **Test drafts for the file you changed**: JUnit for Java, pytest for Python, `*.test.js/ts` for JavaScript and TypeScript, placed where each ecosystem expects them.
+- **README upkeep**: updates the relevant sections and adds a dated changelog entry.
+- **You stay in control**: every step (tests, message, commit, README, push) asks first.
+- **Works with any OpenAI-compatible API**: OpenAI by default; point `OPENAI_BASE_URL` at Azure OpenAI, a gateway, or a local server such as Ollama.
+- **Optional Slack notification** after each commit.
 
-If detected, a warning (⚠️) is displayed. You can cancel (`n`) or proceed (`y`) after acknowledging the risk.
+## How your code and secrets are handled
 
-### AI-Powered Test Generation
+This tool sends your diff to an LLM, so it is careful about what goes out and what goes in:
 
-When functionality changes (feat/fix) are detected, you'll be prompted to generate test cases. **Language-agnostic** support:
-- **Java**: JUnit tests in `src/test/java/`
-- **Python**: pytest tests in `tests/`
-- **JavaScript/TypeScript**: `.test.js` or `.spec.js` files
-- **Other languages**: Generic structure in `tests/` directory
+| Guarantee | How |
+|---|---|
+| Only the lines you **add** are scanned | Removing a leaked key is the fix, so deleted and unchanged lines never raise a warning. |
+| Secrets are **never sent to the AI provider** | Every detected secret is replaced with `[REDACTED]` before the diff is sent, even if you choose to continue past the warning. |
+| Only what you **staged** is committed | Unstaged and untracked files are left alone, because they were never scanned. The only extra files committed are the ones this tool wrote for you (a saved test, an updated README). |
+| Nothing is **pushed** without asking | Push is a separate yes/no prompt after the commit. |
 
-The AI generates 1-2 relevant test cases using the appropriate framework. You can choose to generate tests, and then save or skip the generated file.
+Pattern matching catches the common credential formats, but it is not a full secret scanner. For CI-grade coverage, pair it with a tool like [gitleaks](https://github.com/gitleaks/gitleaks).
 
-### What Happens Behind the Scenes
+## Getting started
 
-| Step | Process | Description |
-|------|---------|-------------|
-| 1 | **Validation** | Checks if repository exists and verifies staged changes are present |
-| 2 | **Diff Extraction** | Retrieves and analyzes staged changes using JGit library |
-| 3 | **Security Validation** | Scans the git diff for sensitive information (API keys, passwords, tokens, secrets, sensitive files). If detected, a warning (⚠️) is displayed with details, and you can choose to proceed or cancel. |
-| 4 | **Test Generation** (optional) | Prompts user to generate test cases. If confirmed, uses OpenAI to generate test cases for the changed code. Supports multiple languages and appropriate testing frameworks. |
-| 5 | **AI Processing** | Sends git diff to OpenAI API for intelligent commit message generation |
-| 6 | **User Interaction** | Displays message, allows editing, and confirms actions |
-| 7 | **README Update** (if confirmed) | Uses AI to update README.md by sending the current README content, commit message, and git diff to OpenAI. The AI intelligently adds new features to the Features section, updates Usage/Configuration sections as needed, and preserves existing content. A changelog entry is automatically appended with timestamp. |
-| 8 | **Git Commit** | Commits all staged changes with AI-generated message |
-| 9 | **Push** | Attempts to push changes to remote repository. If push fails (e.g., no remote configured, authentication issues, network problems), a warning (⚠️) is displayed but the commit remains successful. You can push manually later using `git push`. |
-| 10 | **Slack Notification** (if configured) | Sends a POST request to the configured Slack webhook URL with the commit message in JSON format. The notification appears in your Slack channel as "AI Commit:" followed by the commit message. |
+**Requirements:** Java 11 or newer, Maven 3.6+, and an API key for an OpenAI-compatible endpoint.
 
-### Commit Message Types
+```bash
+git clone https://github.com/santanusetu/Ai-Git-Assist.git
+cd Ai-Git-Assist
+mvn clean package
+```
 
-Follows Conventional Commits specification: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `perf:`
+That produces `target/ai-git-assist.jar`. Then, from any Git repository:
+
+```bash
+export OPENAI_API_KEY=your-api-key
+git add <files>
+java -jar /path/to/ai-git-assist.jar            # uses the current directory
+java -jar /path/to/ai-git-assist.jar ~/code/app # or pass a repository path
+```
+
+Tip: add an alias such as `alias aic='java -jar ~/tools/ai-git-assist.jar'`.
 
 ## Configuration
 
-Environment variables:
-- `OPENAI_API_KEY` (required): Your OpenAI API key
-- `SLACK_WEBHOOK_URL` (optional): Slack webhook URL for notifications
-- `OPENAI_MODEL` (optional): OpenAI model to use (default: gpt-4o-mini)
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `OPENAI_API_KEY` | yes | | API key for the endpoint below (any non-empty value for a local server that needs no key) |
+| `OPENAI_MODEL` | no | `gpt-4o-mini` | Model name |
+| `OPENAI_BASE_URL` | no | `https://api.openai.com/v1` | Any OpenAI-compatible endpoint, e.g. `http://localhost:11434/v1` for Ollama |
+| `SLACK_WEBHOOK_URL` | no | | Posts each commit message to a Slack channel |
 
-### Project Structure
+## How it works
 
 ```
-src/main/java/com/aigitassist/
-├── AiGitAssistApplication.java    # Main application with CommandLineRunner
-├── model/
-│   ├── SensitivePattern.java     # Model for sensitive pattern detection
-│   └── ValidationResult.java     # Model for validation results
-├── service/
-│   ├── AIService.java             # OpenAI API integration
-│   ├── GitService.java            # Git operations using JGit
-│   ├── ReadmeService.java         # README generation/updates
-│   ├── SecurityValidationService.java  # Security validation for sensitive data
-│   └── SlackService.java          # Slack notifications
-└── util/
-    └── FileUtils.java             # Utility methods for file operations
+Validate repository and staged changes
+  │
+  ▼
+Scan added lines for secrets ──► warning ──► continue or cancel
+  │
+  ▼
+Redact secrets from the diff (this is the only version the AI sees)
+  │
+  ▼
+Draft tests? (y/n) ──► save test file? (y/n)
+  │
+  ▼
+Generate commit message ──► edit? (y/n) ──► commit? (y/n)
+  │
+  ▼
+Update README? (y/n)
+  │
+  ▼
+Commit staged changes (+ files this tool wrote)
+  │
+  ▼
+Push? (y/n) ──► Slack notification (if configured)
 ```
 
-## Architecture
+| Component | Responsibility |
+|---|---|
+| `GitService` | Reads the staged diff (HEAD vs index) with JGit, commits, pushes |
+| `SecurityValidationService` | Scans added lines for secrets and redacts them |
+| `AIService` | Calls the chat-completions endpoint for messages, tests and README text |
+| `ReadmeService` | Creates or updates `README.md` and adds changelog entries |
+| `SlackService` | Optional webhook notification |
 
-The application follows a simple service-oriented architecture:
+## Development
 
-1. **Main Application**: `CommandLineRunner` that orchestrates the workflow
-2. **Model Layer**: Data models for validation and patterns
-   - `ValidationResult`: Contains security validation results
-   - `SensitivePattern`: Represents patterns for detecting sensitive information
-3. **Service Layer**: Contains business logic
-   - `GitService`: Manages Git operations using JGit
-   - `AIService`: Communicates with OpenAI API using WebFlux for commit messages, README updates, and test generation
-   - `SecurityValidationService`: Scans staged changes for sensitive information
-   - `ReadmeService`: Handles README file operations
-   - `SlackService`: Sends optional Slack notifications
-4. **Utility Layer**: Helper utilities
-   - `FileUtils`: Utility methods for file path operations and test file generation
+```bash
+mvn test      # run the test suite
+mvn verify    # full build, as run in CI on Java 11, 17 and 21
+```
+
+The tests run offline: Git operations use temporary repositories, and the AI client is tested against a local stub server, so no API key is needed.
+
+## License
+
+[MIT](LICENSE)
