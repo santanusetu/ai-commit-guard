@@ -19,7 +19,8 @@ public class AIService {
     private final ObjectMapper objectMapper;
 
     public AIService(@Value("${openai.api.key:}") String apiKey,
-                    @Value("${openai.model:gpt-4o-mini}") String model) {
+                    @Value("${openai.model:gpt-4o-mini}") String model,
+                    @Value("${openai.base.url:https://api.openai.com/v1}") String baseUrl) {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             throw new IllegalStateException(
                 "OPENAI_API_KEY environment variable is not set.\n" +
@@ -29,7 +30,7 @@ public class AIService {
         this.model = model;
         this.objectMapper = new ObjectMapper();
         this.webClient = WebClient.builder()
-                .baseUrl("https://api.openai.com/v1")
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
@@ -52,39 +53,7 @@ public class AIService {
                 diff
         );
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", model);
-        requestBody.put("temperature", 0.2);
-
-        Map<String, String> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", "You write excellent, concise conventional commits.");
-
-        Map<String, String> userMessage = new HashMap<>();
-        userMessage.put("role", "user");
-        userMessage.put("content", prompt);
-
-        requestBody.put("messages", new Object[]{systemMessage, userMessage});
-
-        try {
-            String response = webClient.post()
-                    .uri("/chat/completions")
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            JsonNode jsonNode = objectMapper.readTree(response);
-            String content = jsonNode.get("choices")
-                    .get(0)
-                    .get("message")
-                    .get("content")
-                    .asText();
-
-            return content.trim();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate commit message: " + e.getMessage(), e);
-        }
+        return complete("You write excellent, concise conventional commits.", prompt, 0.2, "Failed to generate commit message");
     }
 
     /**
@@ -122,38 +91,7 @@ public class AIService {
                 projectName, envList
         );
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", model);
-        requestBody.put("temperature", 0.2);
-
-        Map<String, String> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", "You write excellent, practical READMEs for real projects.");
-
-        Map<String, String> userMessage = new HashMap<>();
-        userMessage.put("role", "user");
-        userMessage.put("content", prompt);
-
-        requestBody.put("messages", new Object[]{systemMessage, userMessage});
-
-        try {
-            String response = webClient.post()
-                    .uri("/chat/completions")
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            JsonNode jsonNode = objectMapper.readTree(response);
-            return jsonNode.get("choices")
-                    .get(0)
-                    .get("message")
-                    .get("content")
-                    .asText()
-                    .trim();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate README: " + e.getMessage(), e);
-        }
+        return complete("You write excellent, practical READMEs for real projects.", prompt, 0.2, "Failed to generate README");
     }
 
     /**
@@ -178,38 +116,7 @@ public class AIService {
                 currentReadme, commitMessage, diff
         );
 
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", model);
-        requestBody.put("temperature", 0.2);
-
-        Map<String, String> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", "You update README.md files professionally for software projects.");
-
-        Map<String, String> userMessage = new HashMap<>();
-        userMessage.put("role", "user");
-        userMessage.put("content", prompt);
-
-        requestBody.put("messages", new Object[]{systemMessage, userMessage});
-
-        try {
-            String response = webClient.post()
-                    .uri("/chat/completions")
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-
-            JsonNode jsonNode = objectMapper.readTree(response);
-            return jsonNode.get("choices")
-                    .get(0)
-                    .get("message")
-                    .get("content")
-                    .asText()
-                    .trim();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update README: " + e.getMessage(), e);
-        }
+        return complete("You update README.md files professionally for software projects.", prompt, 0.2, "Failed to update README");
     }
 
     /**
@@ -230,13 +137,25 @@ public class AIService {
                 diff, changedFile
         );
 
+        return complete("You write excellent, practical test cases.", prompt, 0.3, "Failed to generate test cases");
+    }
+
+    /**
+     * Sends one chat-completion request and returns the reply text.
+     * @param system The system message
+     * @param prompt The user message
+     * @param temperature Sampling temperature
+     * @param failure Error message prefix if the call fails
+     * @return The model's reply, trimmed
+     */
+    private String complete(String system, String prompt, double temperature, String failure) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", model);
-        requestBody.put("temperature", 0.3);
+        requestBody.put("temperature", temperature);
 
         Map<String, String> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
-        systemMessage.put("content", "You write excellent, practical test cases.");
+        systemMessage.put("content", system);
 
         Map<String, String> userMessage = new HashMap<>();
         userMessage.put("role", "user");
@@ -260,9 +179,8 @@ public class AIService {
                     .asText()
                     .trim();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate test cases: " + e.getMessage(), e);
+            throw new RuntimeException(failure + ": " + e.getMessage(), e);
         }
     }
 
 }
-
