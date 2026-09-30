@@ -15,6 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 @SpringBootApplication
@@ -119,6 +121,10 @@ public class AiGitAssistApplication implements CommandLineRunner {
             System.out.println("✅ Security validation passed.\n");
         }
 
+        // Never send secrets to the AI provider, even if the user chose to continue
+        String diffForAi = securityValidationService.redact(diff);
+        List<String> toolWrittenFiles = new ArrayList<>();
+
         // Generate test cases for functionality changes
         if (diff.contains("+") || diff.contains("-")) {
             System.out.println();
@@ -128,7 +134,7 @@ public class AiGitAssistApplication implements CommandLineRunner {
                 String changedFile = FileUtils.extractChangedFile(diff);
                 if (changedFile != null) {
                     try {
-                        String testCode = aiService.generateTestCases(diff, changedFile);
+                        String testCode = aiService.generateTestCases(diffForAi, changedFile);
                         
                         System.out.println("═══════════════════════════════════════════════════════════");
                         System.out.println("                    GENERATED TEST CASES");
@@ -141,6 +147,7 @@ public class AiGitAssistApplication implements CommandLineRunner {
                             File testFile = new File(repoPath, testFilePath);
                             testFile.getParentFile().mkdirs();
                             Files.write(testFile.toPath(), testCode.getBytes());
+                            toolWrittenFiles.add(testFilePath);
                             System.out.println("\n✅ Test saved: " + testFilePath + "\n");
                         } else {
                             System.out.println("\nTest file not saved.\n");
@@ -156,7 +163,7 @@ public class AiGitAssistApplication implements CommandLineRunner {
 
         // Generate commit message using AI
         System.out.println("Generating commit message...");
-        String commitMessage = aiService.generateCommitMessage(diff);
+        String commitMessage = aiService.generateCommitMessage(diffForAi);
         System.out.println("✅ Done.\n");
         System.out.println("═══════════════════════════════════════════════════════════");
         System.out.println("                    COMMIT MESSAGE");
@@ -185,7 +192,8 @@ public class AiGitAssistApplication implements CommandLineRunner {
         System.out.println();
         if (askYesNo("Update README? (y/n): ")) {
             System.out.println("\nUpdating README...");
-            readmeService.ensureReadme(repoPath, commitMessage, diff, aiService);
+            readmeService.ensureReadme(repoPath, commitMessage, diffForAi, aiService);
+            toolWrittenFiles.add("README.md");
             System.out.println("✅ README updated.\n");
         } else {
             System.out.println("\nSkipping README update.\n");
@@ -193,18 +201,22 @@ public class AiGitAssistApplication implements CommandLineRunner {
 
         // Commit changes
         System.out.println("Committing changes...");
-        gitService.commitChanges(repoPath, commitMessage);
+        gitService.commitChanges(repoPath, commitMessage, toolWrittenFiles);
         System.out.println("✅ Changes committed.\n");
 
-        // Get current branch and try to push
+        // Push only if the user asks for it
         String branch = gitService.getCurrentBranch(repoPath);
-        System.out.println("Pushing to remote...");
-        try {
-            gitService.pushChanges(repoPath, branch);
-            System.out.println("✅ Changes pushed to remote.\n");
-        } catch (Exception e) {
-            System.out.println("⚠️  WARNING: Push failed: " + e.getMessage());
-            System.out.println("(Commit was successful, but push failed)\n");
+        if (askYesNo("Push to origin/" + branch + "? (y/n): ")) {
+            System.out.println("Pushing to remote...");
+            try {
+                gitService.pushChanges(repoPath, branch);
+                System.out.println("✅ Changes pushed to remote.\n");
+            } catch (Exception e) {
+                System.out.println("⚠️  WARNING: Push failed: " + e.getMessage());
+                System.out.println("(Commit was successful, but push failed)\n");
+            }
+        } else {
+            System.out.println("\nSkipping push.\n");
         }
 
         // Send Slack notification
