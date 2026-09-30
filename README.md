@@ -68,16 +68,16 @@ Pattern matching catches the common credential formats but is not a full secret 
 ## How it works
 
 ```mermaid
-flowchart TB
-    A["📥 Staged changes"] --> B["🔍 Scan the added lines for secrets<br/>if any are found: warn, you continue or stop"]
-    B --> R["🔒 Redact every secret to [REDACTED]"]
-    R --> D["📤 Only the redacted diff is sent to the model"]
-    D --> T["🧪 Optional: draft tests for the changed file"]
-    T --> M["✍️ Generate a Conventional Commits message<br/>you can edit it"]
-    M --> E["✋ You approve the commit"]
-    E --> G["📦 Commit the staged files only"]
-    G --> P["🚀 Push, only if you say yes"]
+flowchart LR
+    A["📥 Staged<br/>changes"] --> B["🔍 Scan added<br/>lines for secrets"]
+    B --> R["🔒 Redact to<br/>[REDACTED]"]
+    R --> M["✍️ Model writes<br/>the message"]
+    M --> E["✋ You<br/>approve"]
+    E --> G["📦 Commit<br/>staged files"]
+    G --> P["🚀 Push<br/>if you say yes"]
 ```
+
+If secrets are found you're warned first and choose whether to continue; either way, the model only ever sees the redacted diff. Drafting tests for the changed file is an optional step before the message.
 
 | Component | Responsibility |
 |---|---|
