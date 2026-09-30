@@ -111,14 +111,20 @@ public class GitService {
     }
 
     /**
-     * Commits all staged changes with the given commit message
+     * Commits the staged changes with the given commit message. Only what the user staged is
+     * committed, plus any files this tool wrote itself (a generated test, an updated README).
+     * Unstaged and untracked files are left alone, because they were never security-checked.
      * @param repositoryPath Path to the git repository
      * @param commitMessage The commit message to use
+     * @param toolWrittenFiles Repository-relative paths of files this tool created or updated
      */
-    public void commitChanges(String repositoryPath, String commitMessage) throws IOException, GitAPIException {
+    public void commitChanges(String repositoryPath, String commitMessage, List<String> toolWrittenFiles)
+            throws IOException, GitAPIException {
         File repoDir = new File(repositoryPath);
         try (Git git = Git.open(repoDir)) {
-            git.add().addFilepattern(".").call();
+            for (String path : toolWrittenFiles) {
+                git.add().addFilepattern(path).call();
+            }
             git.commit()
                     .setMessage(commitMessage)
                     .call();
