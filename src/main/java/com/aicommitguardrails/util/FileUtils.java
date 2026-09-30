@@ -1,4 +1,4 @@
-package com.aicommitguard.util;
+package com.aicommitguardrails.util;
 
 /**
  * Utility class for file-related operations.

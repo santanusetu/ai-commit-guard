@@ -5,12 +5,12 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.aicommitguard</groupId>
-    <artifactId>ai-commit-guard</artifactId>
+    <groupId>com.aicommitguardrails</groupId>
+    <artifactId>ai-commit-guardrails</artifactId>
     <version>1.1.0</version>
     <packaging>jar</packaging>
 
-    <name>AI Commit Guard</name>
+    <name>AI Commit Guardrails</name>
     <description>AI commit assistant that scans staged changes for secrets before writing the commit message</description>
 
     <parent>
@@ -68,7 +68,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>ai-commit-guard</finalName>
+        <finalName>ai-commit-guardrails</finalName>
     </build>
 
 </project>

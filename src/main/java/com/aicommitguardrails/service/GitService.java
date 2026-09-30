@@ -1,4 +1,4 @@
-package com.aicommitguard.service;
+package com.aicommitguardrails.service;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;

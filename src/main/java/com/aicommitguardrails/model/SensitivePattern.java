@@ -1,4 +1,4 @@
-package com.aicommitguard.model;
+package com.aicommitguardrails.model;
 
 import java.util.regex.Pattern;
 

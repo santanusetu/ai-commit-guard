@@ -1,4 +1,4 @@
-package com.aicommitguard.service;
+package com.aicommitguardrails.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

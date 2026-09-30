@@ -1,4 +1,4 @@
-package com.aicommitguard.service;
+package com.aicommitguardrails.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

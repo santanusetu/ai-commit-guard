@@ -1,4 +1,4 @@
-<h1 align="center">🛡️ AI Commit Guard</h1>
+<h1 align="center">🛡️ AI Commit Guardrails</h1>
 
 <p align="center">
   <b>The AI commit assistant that won't leak your secrets.</b><br>
@@ -7,21 +7,21 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/santanusetu/ai-commit-guard/actions/workflows/build.yml"><img alt="build" src="https://github.com/santanusetu/ai-commit-guard/actions/workflows/build.yml/badge.svg"></a>
+  <a href="https://github.com/santanusetu/ai-commit-guardrails/actions/workflows/build.yml"><img alt="build" src="https://github.com/santanusetu/ai-commit-guardrails/actions/workflows/build.yml/badge.svg"></a>
   <img alt="Java 11+" src="https://img.shields.io/badge/Java-11%2B-ED8B00?logo=openjdk&logoColor=white">
   <img alt="OpenAI-compatible" src="https://img.shields.io/badge/LLM-OpenAI--compatible-412991?logo=openai&logoColor=white">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
 </p>
 
 <p align="center">
-  <img src="docs/demo.svg" alt="AI Commit Guard catching an AWS key, redacting it, and writing a commit message" width="820">
+  <img src="docs/demo.svg" alt="AI Commit Guardrails catching an AWS key, redacting it, and writing a commit message" width="820">
 </p>
 
 ## Why
 
 AI commit tools send your diff to a model. Your diff is exactly where secrets leak: a key pasted in to test something, a `.env` that slipped into `git add .`. Most tools send it anyway.
 
-AI Commit Guard puts a guard in front of the model:
+AI Commit Guardrails puts guardrails around the model:
 
 - 🔍 **Scans before it sends.** Every line you're adding is checked for credentials first.
 - 🔒 **Redacts, even if you continue.** The AI provider only ever sees `[REDACTED]` in place of a secret. The demo above is a real run: the request the model received contained `AWS_KEY = "[REDACTED]"`.
@@ -42,15 +42,15 @@ AI Commit Guard puts a guard in front of the model:
 ## Quick start
 
 ```bash
-git clone https://github.com/santanusetu/ai-commit-guard.git
-cd ai-commit-guard && mvn -q package        # builds target/ai-commit-guard.jar
+git clone https://github.com/santanusetu/ai-commit-guardrails.git
+cd ai-commit-guardrails && mvn -q package        # builds target/ai-commit-guardrails.jar
 
 export OPENAI_API_KEY=your-api-key
 cd ~/code/your-project && git add -p
-java -jar ~/ai-commit-guard/target/ai-commit-guard.jar
+java -jar ~/ai-commit-guardrails/target/ai-commit-guardrails.jar
 ```
 
-Tip: `alias gcg='java -jar ~/ai-commit-guard/target/ai-commit-guard.jar'` and run `gcg` instead of `git commit`.
+Tip: `alias gcg='java -jar ~/ai-commit-guardrails/target/ai-commit-guardrails.jar'` and run `gcg` instead of `git commit`.
 
 Want to try it safely first? [`examples/calculator`](examples/calculator) is a small Java project with a [testing guide](examples/calculator/TESTING_GUIDE.md) of changes to stage and commit.
 

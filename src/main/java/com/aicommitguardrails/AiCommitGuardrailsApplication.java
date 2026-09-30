@@ -1,12 +1,12 @@
-package com.aicommitguard;
+package com.aicommitguardrails;
 
-import com.aicommitguard.model.ValidationResult;
-import com.aicommitguard.service.AIService;
-import com.aicommitguard.service.GitService;
-import com.aicommitguard.service.ReadmeService;
-import com.aicommitguard.service.SecurityValidationService;
-import com.aicommitguard.service.SlackService;
-import com.aicommitguard.util.FileUtils;
+import com.aicommitguardrails.model.ValidationResult;
+import com.aicommitguardrails.service.AIService;
+import com.aicommitguardrails.service.GitService;
+import com.aicommitguardrails.service.ReadmeService;
+import com.aicommitguardrails.service.SecurityValidationService;
+import com.aicommitguardrails.service.SlackService;
+import com.aicommitguardrails.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Scanner;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.aicommitguard")
-public class AiCommitGuardApplication implements CommandLineRunner {
+@ComponentScan(basePackages = "com.aicommitguardrails")
+public class AiCommitGuardrailsApplication implements CommandLineRunner {
     
     private static final String SKIP_RUNNER = "skip.runner";
 
@@ -43,7 +43,7 @@ public class AiCommitGuardApplication implements CommandLineRunner {
     private final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(AiCommitGuardApplication.class);
+        SpringApplication app = new SpringApplication(AiCommitGuardrailsApplication.class);
         app.setBannerMode(org.springframework.boot.Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -58,7 +58,7 @@ public class AiCommitGuardApplication implements CommandLineRunner {
         
         // Clear console and show welcome message
         System.out.println("\n╔══════════════════════════════════════════════════════════╗");
-        System.out.println("║                  AI Commit Guard v1.1.0                  ║");
+        System.out.println("║               AI Commit Guardrails v1.1.0                ║");
         System.out.println("║           Secret scanning + AI commit messages           ║");
         System.out.println("╚══════════════════════════════════════════════════════════╝\n");
         

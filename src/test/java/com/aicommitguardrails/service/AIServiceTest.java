@@ -1,4 +1,4 @@
-package com.aicommitguard.service;
+package com.aicommitguardrails.service;
 
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
