@@ -1,4 +1,4 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

@@ -1,4 +1,4 @@
-package com.aigitassist.util;
+package com.aicommitguard.util;
 
 /**
  * Utility class for file-related operations.

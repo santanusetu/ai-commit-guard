@@ -1,6 +1,6 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
-import com.aigitassist.model.ValidationResult;
+import com.aicommitguard.model.ValidationResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

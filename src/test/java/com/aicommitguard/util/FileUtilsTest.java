@@ -1,4 +1,4 @@
-package com.aigitassist.util;
+package com.aicommitguard.util;
 
 import org.junit.jupiter.api.Test;
 

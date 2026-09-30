@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 /**
  * Main Calculator Application
- * A simple command-line calculator for testing AI Git Assist
+ * A simple command-line calculator for testing AI Commit Guard
  */
 public class Calculator {
     private final CalculatorService calculatorService;

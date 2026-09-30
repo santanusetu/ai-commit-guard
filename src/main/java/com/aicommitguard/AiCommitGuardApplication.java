@@ -1,12 +1,12 @@
-package com.aigitassist;
+package com.aicommitguard;
 
-import com.aigitassist.model.ValidationResult;
-import com.aigitassist.service.AIService;
-import com.aigitassist.service.GitService;
-import com.aigitassist.service.ReadmeService;
-import com.aigitassist.service.SecurityValidationService;
-import com.aigitassist.service.SlackService;
-import com.aigitassist.util.FileUtils;
+import com.aicommitguard.model.ValidationResult;
+import com.aicommitguard.service.AIService;
+import com.aicommitguard.service.GitService;
+import com.aicommitguard.service.ReadmeService;
+import com.aicommitguard.service.SecurityValidationService;
+import com.aicommitguard.service.SlackService;
+import com.aicommitguard.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Scanner;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.aigitassist")
-public class AiGitAssistApplication implements CommandLineRunner {
+@ComponentScan(basePackages = "com.aicommitguard")
+public class AiCommitGuardApplication implements CommandLineRunner {
     
     private static final String SKIP_RUNNER = "skip.runner";
 
@@ -43,7 +43,7 @@ public class AiGitAssistApplication implements CommandLineRunner {
     private final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(AiGitAssistApplication.class);
+        SpringApplication app = new SpringApplication(AiCommitGuardApplication.class);
         app.setBannerMode(org.springframework.boot.Banner.Mode.OFF);
         app.setLogStartupInfo(false);
         app.run(args);
@@ -58,8 +58,8 @@ public class AiGitAssistApplication implements CommandLineRunner {
         
         // Clear console and show welcome message
         System.out.println("\n╔══════════════════════════════════════════════════════════╗");
-        System.out.println("║              AI Git Assist v1.0.0                        ║");
-        System.out.println("║     AI-Powered Commit Messages & Test Generation         ║");
+        System.out.println("║                  AI Commit Guard v1.1.0                  ║");
+        System.out.println("║           Secret scanning + AI commit messages           ║");
         System.out.println("╚══════════════════════════════════════════════════════════╝\n");
         
         try {
@@ -68,6 +68,9 @@ public class AiGitAssistApplication implements CommandLineRunner {
             System.err.println("\n❌ ERROR: " + e.getMessage() + "\n");
             System.exit(1);
         }
+        // Exit explicitly: the HTTP client's non-daemon threads would otherwise keep
+        // the JVM alive after an early return such as "Commit cancelled."
+        System.exit(0);
     }
     
     private void executeRun(String... args) throws Exception {
@@ -123,6 +126,9 @@ public class AiGitAssistApplication implements CommandLineRunner {
 
         // Never send secrets to the AI provider, even if the user chose to continue
         String diffForAi = securityValidationService.redact(diff);
+        if (!diffForAi.equals(diff)) {
+            System.out.println("🔒 Secrets redacted. The AI provider only sees [REDACTED] in their place.\n");
+        }
         List<String> toolWrittenFiles = new ArrayList<>();
 
         // Generate test cases for functionality changes

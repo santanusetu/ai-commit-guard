@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="559" viewBox="0 0 900 559" role="img" aria-label="AI Commit Guard catching an AWS key, redacting it, and writing a commit message">
+<rect width="900" height="559" rx="10" fill="#0d1117"/>
+<rect width="900" height="36" rx="10" fill="#161b22"/><rect y="26" width="900" height="10" fill="#161b22"/>
+<circle cx="22" cy="18" r="6" fill="#ff5f57"/><circle cx="42" cy="18" r="6" fill="#febc2e"/><circle cx="62" cy="18" r="6" fill="#28c840"/>
+<text x="450" y="23" fill="#8b949e" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="12" text-anchor="middle">ai-commit-guard — real run</text>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace" font-size="13.5" xml:space="preserve">
+<text x="22" y="62"><tspan fill="#7ee787">$ </tspan><tspan fill="#e6edf3">git add src/main/java/com/shop/PaymentClient.java</tspan></text>
+<text x="22" y="83"><tspan fill="#7ee787">$ </tspan><tspan fill="#e6edf3">java -jar ai-commit-guard.jar</tspan></text>
+<text x="22" y="125"><tspan fill="#8b949e">Validating changes for sensitive information...</tspan></text>
+<text x="22" y="146"><tspan fill="#f0883e" font-weight="bold">⚠  WARNING: Security issues detected!</tspan></text>
+<text x="22" y="167"><tspan fill="#ff7b72">  - AWS Access Key detected:  private static final String AWS_KEY = "***MPLE***";</tspan></text>
+<text x="22" y="188"><tspan fill="#e6edf3">Continue anyway? (y/n): </tspan><tspan fill="#d2a8ff">y</tspan></text>
+<text x="22" y="209"><tspan fill="#79c0ff">🔒 Secrets redacted. The AI provider only sees [REDACTED] in their place.</tspan></text>
+<text x="22" y="251"><tspan fill="#e6edf3">Generate test cases for functionality changes? (y/n): </tspan><tspan fill="#d2a8ff">n</tspan></text>
+<text x="22" y="272"><tspan fill="#8b949e">Generating commit message... </tspan><tspan fill="#3fb950">✅ Done.</tspan></text>
+<text x="22" y="293"><tspan fill="#8b949e">────────────────────────── COMMIT MESSAGE ──────────────────────────</tspan></text>
+<text x="22" y="314"><tspan fill="#e6edf3" font-weight="bold">feat(payments): add retry with backoff to PaymentClient</tspan></text>
+<text x="22" y="356"><tspan fill="#e6edf3">- Retry transient 5xx and timeout errors up to 3 times</tspan></text>
+<text x="22" y="377"><tspan fill="#e6edf3">- Read the gateway key from configuration instead of code</tspan></text>
+<text x="22" y="398"><tspan fill="#8b949e">────────────────────────────────────────────────────────────────────</tspan></text>
+<text x="22" y="419"><tspan fill="#e6edf3">Edit message? (y/n): </tspan><tspan fill="#d2a8ff">n</tspan></text>
+<text x="22" y="440"><tspan fill="#e6edf3">Commit with this message? (y/n): </tspan><tspan fill="#d2a8ff">y</tspan></text>
+<text x="22" y="461"><tspan fill="#e6edf3">Update README? (y/n): </tspan><tspan fill="#d2a8ff">n</tspan></text>
+<text x="22" y="482"><tspan fill="#3fb950">✅ Changes committed.</tspan></text>
+<text x="22" y="503"><tspan fill="#e6edf3">Push to origin/main? (y/n): </tspan><tspan fill="#d2a8ff">n</tspan></text>
+<text x="22" y="524"><tspan fill="#3fb950">✅ All changes have been committed successfully.</tspan></text>
+</g></svg>

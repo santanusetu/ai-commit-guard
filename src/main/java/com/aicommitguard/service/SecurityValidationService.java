@@ -1,7 +1,7 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
-import com.aigitassist.model.SensitivePattern;
-import com.aigitassist.model.ValidationResult;
+import com.aicommitguard.model.SensitivePattern;
+import com.aicommitguard.model.ValidationResult;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

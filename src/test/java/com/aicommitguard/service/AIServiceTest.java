@@ -1,4 +1,4 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;

@@ -1,6 +1,6 @@
 # Test Java Committer Project
 
-A simple calculator application designed for testing the AI Git Assist JAR tool. This project provides a clean, structured codebase with multiple files that can be modified to test various commit scenarios (features, fixes, docs, refactoring, tests).
+A simple calculator application designed for testing the AI Commit Guard JAR tool. This project provides a clean, structured codebase with multiple files that can be modified to test various commit scenarios (features, fixes, docs, refactoring, tests).
 
 ## Project Structure
 
@@ -90,7 +90,7 @@ Enter operation (add, subtract, multiply, divide, power): quit
 Goodbye!
 ```
 
-## Testing AI Git Assist
+## Testing AI Commit Guard
 
 This project is designed to test various commit scenarios:
 
@@ -131,16 +131,16 @@ This project is designed to test various commit scenarios:
    git add .
    ```
 
-3. **Run AI Git Assist**:
+3. **Run AI Commit Guard**:
    ```bash
-   java -jar /path/to/ai-git-assist.jar
+   java -jar /path/to/ai-commit-guard.jar
    ```
 
-4. **Review and commit** following the AI Git Assist prompts
+4. **Review and commit** following the AI Commit Guard prompts
 
 ## Project Status
 
-This is a test project for validating AI Git Assist functionality. The codebase is intentionally simple to make it easy to understand and modify for testing purposes.
+This is a test project for validating AI Commit Guard functionality. The codebase is intentionally simple to make it easy to understand and modify for testing purposes.
 
 
 ## Features / Changelog

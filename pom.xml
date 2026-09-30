@@ -5,13 +5,13 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.aigitassist</groupId>
-    <artifactId>ai-git-assist</artifactId>
-    <version>1.0.0</version>
+    <groupId>com.aicommitguard</groupId>
+    <artifactId>ai-commit-guard</artifactId>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
-    <name>AI Git Assist</name>
-    <description>AI-powered Git commit message generator and README updater</description>
+    <name>AI Commit Guard</name>
+    <description>AI commit assistant that scans staged changes for secrets before writing the commit message</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -68,7 +68,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>ai-git-assist</finalName>
+        <finalName>ai-commit-guard</finalName>
     </build>
 
 </project>

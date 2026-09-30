@@ -1,4 +1,4 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;

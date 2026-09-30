@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
 
     <name>Test Java Committer Project</name>
-    <description>A simple calculator application for testing AI Git Assist</description>
+    <description>A simple calculator application for testing AI Commit Guard</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

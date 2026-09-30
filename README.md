@@ -1,131 +1,113 @@
-# AI Git Assist
+<h1 align="center">🛡️ AI Commit Guard</h1>
 
-[![build](https://github.com/santanusetu/Ai-Git-Assist/actions/workflows/build.yml/badge.svg)](https://github.com/santanusetu/Ai-Git-Assist/actions/workflows/build.yml)
-![Java](https://img.shields.io/badge/Java-11%2B-ED8B00?logo=openjdk&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+<p align="center">
+  <b>The AI commit assistant that won't leak your secrets.</b><br>
+  It catches credentials in your staged changes, redacts them before the LLM sees anything,<br>
+  then writes a clean Conventional Commits message for you.
+</p>
 
-An interactive command-line assistant for `git commit`. It checks your staged changes for leaked secrets, writes a [Conventional Commits](https://www.conventionalcommits.org/) message with an LLM, can draft tests for the code you changed, and keeps your README up to date. Nothing is committed or pushed until you say yes.
+<p align="center">
+  <a href="https://github.com/santanusetu/ai-commit-guard/actions/workflows/build.yml"><img alt="build" src="https://github.com/santanusetu/ai-commit-guard/actions/workflows/build.yml/badge.svg"></a>
+  <img alt="Java 11+" src="https://img.shields.io/badge/Java-11%2B-ED8B00?logo=openjdk&logoColor=white">
+  <img alt="OpenAI-compatible" src="https://img.shields.io/badge/LLM-OpenAI--compatible-412991?logo=openai&logoColor=white">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+</p>
 
-```
-$ git add src/main/java/com/example/UserService.java
-$ java -jar ai-git-assist.jar
+<p align="center">
+  <img src="docs/demo.svg" alt="AI Commit Guard catching an AWS key, redacting it, and writing a commit message" width="820">
+</p>
 
-Validating changes for sensitive information...
-✅ Security validation passed.
+## Why
 
-Generating commit message...
-═══════════════════════════════════════════════════════════
-                    COMMIT MESSAGE
-═══════════════════════════════════════════════════════════
+AI commit tools send your diff to a model. Your diff is exactly where secrets leak: a key pasted in to test something, a `.env` that slipped into `git add .`. Most tools send it anyway.
 
-feat: implement user authentication service
+AI Commit Guard puts a guard in front of the model:
 
-- Add UserService with login and registration
-- Fix DatabaseConnection timeout handling
-
-Edit message? (y/n): n
-Commit with this message? (y/n): y
-Push to origin/main? (y/n): y
-✅ Changes pushed to remote.
-```
+- 🔍 **Scans before it sends.** Every line you're adding is checked for credentials first.
+- 🔒 **Redacts, even if you continue.** The AI provider only ever sees `[REDACTED]` in place of a secret. The demo above is a real run: the request the model received contained `AWS_KEY = "[REDACTED]"`.
+- ✋ **Commits only what you staged.** Unstaged and untracked files are never swept in behind your back.
 
 ## Features
 
-- **Secret scanning before anything leaves your machine**: AWS keys, GitHub tokens (classic and fine-grained), Slack tokens, OpenAI/Anthropic keys, private keys, `password=`/`token=` assignments, and `.env` files.
-- **Commit messages that follow Conventional Commits**: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `perf:`, with a summary line of 72 characters or less.
-- **Test drafts for the file you changed**: JUnit for Java, pytest for Python, `*.test.js/ts` for JavaScript and TypeScript, placed where each ecosystem expects them.
-- **README upkeep**: updates the relevant sections and adds a dated changelog entry.
-- **You stay in control**: every step (tests, message, commit, README, push) asks first.
-- **Works with any OpenAI-compatible API**: OpenAI by default; point `OPENAI_BASE_URL` at Azure OpenAI, a gateway, or a local server such as Ollama.
-- **Optional Slack notification** after each commit.
+| Feature | What it does |
+|---|---|
+| 🔍 **Secret scanning** | AWS keys, GitHub tokens (classic and fine-grained), Slack tokens, OpenAI and Anthropic keys, private keys, `password=` / `token=` assignments, and `.env` files |
+| ✍️ **Commit messages** | [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `refactor`, ...) with a summary of 72 characters or less, editable before you commit |
+| 🧪 **Test drafts** | 1–2 tests for the file you changed: JUnit, pytest, or `*.test.js/ts`, saved where each ecosystem expects them |
+| 📝 **README upkeep** | Updates the relevant sections and adds a dated changelog entry |
+| 🔌 **Any OpenAI-compatible model** | OpenAI by default; point it at Azure OpenAI, a gateway, or a local model with Ollama |
+| ✋ **You approve every step** | Tests, message, commit, README and push are each a yes/no prompt |
+| 💬 **Slack** (optional) | Posts each commit message to a channel |
+
+## Quick start
+
+```bash
+git clone https://github.com/santanusetu/ai-commit-guard.git
+cd ai-commit-guard && mvn -q package        # builds target/ai-commit-guard.jar
+
+export OPENAI_API_KEY=your-api-key
+cd ~/code/your-project && git add -p
+java -jar ~/ai-commit-guard/target/ai-commit-guard.jar
+```
+
+Tip: `alias gcg='java -jar ~/ai-commit-guard/target/ai-commit-guard.jar'` and run `gcg` instead of `git commit`.
+
+Want to try it safely first? [`examples/calculator`](examples/calculator) is a small Java project with a [testing guide](examples/calculator/TESTING_GUIDE.md) of changes to stage and commit.
 
 ## How your code and secrets are handled
 
-This tool sends your diff to an LLM, so it is careful about what goes out and what goes in:
-
 | Guarantee | How |
 |---|---|
-| Only the lines you **add** are scanned | Removing a leaked key is the fix, so deleted and unchanged lines never raise a warning. |
-| Secrets are **never sent to the AI provider** | Every detected secret is replaced with `[REDACTED]` before the diff is sent, even if you choose to continue past the warning. |
-| Only what you **staged** is committed | Unstaged and untracked files are left alone, because they were never scanned. The only extra files committed are the ones this tool wrote for you (a saved test, an updated README). |
-| Nothing is **pushed** without asking | Push is a separate yes/no prompt after the commit. |
+| Only the lines you **add** are scanned | Removing a leaked key is the fix, so deleted and unchanged lines never raise a warning |
+| Secrets are **never sent to the model** | Each detected secret is replaced with `[REDACTED]` before the request, even after you choose to continue |
+| Only what you **staged** is committed | The only extra files committed are ones this tool wrote for you (a saved test, an updated README) |
+| Nothing is **pushed** without asking | Push is its own prompt, after the commit |
 
-Pattern matching catches the common credential formats, but it is not a full secret scanner. For CI-grade coverage, pair it with a tool like [gitleaks](https://github.com/gitleaks/gitleaks).
+Pattern matching catches the common credential formats but is not a full secret scanner. For CI-grade coverage, pair it with [gitleaks](https://github.com/gitleaks/gitleaks).
 
-## Getting started
+## How it works
 
-**Requirements:** Java 11 or newer, Maven 3.6+, and an API key for an OpenAI-compatible endpoint.
-
-```bash
-git clone https://github.com/santanusetu/Ai-Git-Assist.git
-cd Ai-Git-Assist
-mvn clean package
+```mermaid
+flowchart TD
+    A[Staged changes] --> B{Secrets in added lines?}
+    B -- no --> D
+    B -- yes --> C{Continue?}
+    C -- no --> X[Stop]
+    C -- yes --> R[Redact secrets]
+    R --> D[Diff the model is allowed to see]
+    D --> T[Optional: draft tests]
+    T --> M[Generate commit message]
+    M --> E{Commit?}
+    E -- yes --> G[Commit staged files only]
+    G --> P{Push?}
 ```
 
-That produces `target/ai-git-assist.jar`. Then, from any Git repository:
-
-```bash
-export OPENAI_API_KEY=your-api-key
-git add <files>
-java -jar /path/to/ai-git-assist.jar            # uses the current directory
-java -jar /path/to/ai-git-assist.jar ~/code/app # or pass a repository path
-```
-
-Tip: add an alias such as `alias aic='java -jar ~/tools/ai-git-assist.jar'`.
+| Component | Responsibility |
+|---|---|
+| `SecurityValidationService` | Scans added lines for secrets and redacts them |
+| `GitService` | Reads the staged diff (HEAD vs index) with JGit, commits, pushes |
+| `AIService` | One chat-completion client for messages, tests and README text |
+| `ReadmeService` | Creates or updates `README.md` and adds changelog entries |
+| `SlackService` | Optional webhook notification |
 
 ## Configuration
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
-| `OPENAI_API_KEY` | yes | | API key for the endpoint below (any non-empty value for a local server that needs no key) |
+| `OPENAI_API_KEY` | yes | | API key (any non-empty value for a local server that needs none) |
 | `OPENAI_MODEL` | no | `gpt-4o-mini` | Model name |
 | `OPENAI_BASE_URL` | no | `https://api.openai.com/v1` | Any OpenAI-compatible endpoint, e.g. `http://localhost:11434/v1` for Ollama |
-| `SLACK_WEBHOOK_URL` | no | | Posts each commit message to a Slack channel |
-
-## How it works
-
-```
-Validate repository and staged changes
-  │
-  ▼
-Scan added lines for secrets ──► warning ──► continue or cancel
-  │
-  ▼
-Redact secrets from the diff (this is the only version the AI sees)
-  │
-  ▼
-Draft tests? (y/n) ──► save test file? (y/n)
-  │
-  ▼
-Generate commit message ──► edit? (y/n) ──► commit? (y/n)
-  │
-  ▼
-Update README? (y/n)
-  │
-  ▼
-Commit staged changes (+ files this tool wrote)
-  │
-  ▼
-Push? (y/n) ──► Slack notification (if configured)
-```
-
-| Component | Responsibility |
-|---|---|
-| `GitService` | Reads the staged diff (HEAD vs index) with JGit, commits, pushes |
-| `SecurityValidationService` | Scans added lines for secrets and redacts them |
-| `AIService` | Calls the chat-completions endpoint for messages, tests and README text |
-| `ReadmeService` | Creates or updates `README.md` and adds changelog entries |
-| `SlackService` | Optional webhook notification |
+| `SLACK_WEBHOOK_URL` | no | | Slack incoming webhook for commit notifications |
 
 ## Development
 
 ```bash
-mvn test      # run the test suite
-mvn verify    # full build, as run in CI on Java 11, 17 and 21
+mvn test      # 29 tests, fully offline
+mvn verify    # what CI runs on Java 11, 17 and 21
 ```
 
-The tests run offline: Git operations use temporary repositories, and the AI client is tested against a local stub server, so no API key is needed.
+Git operations are tested against temporary repositories, and the AI client against a local stub server, so no API key or network is needed.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © Santanu Chakraborty

@@ -1,4 +1,4 @@
-package com.aigitassist.service;
+package com.aicommitguard.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
